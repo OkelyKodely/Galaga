@@ -28,17 +28,18 @@ public class Galaga implements KeyListener {
     Lasers lasers = new Lasers();
     int points = 0;
     
-    class GameFunctor {
-        class Function {
-            int id;
-            String name;
-            Runnable runnable;
-            Function(int id, String name, Runnable runnable) {
-                this.id = id;
-                this.name = name;
-                this.runnable = runnable;
-            }
+    class Function {
+        int id;
+        String name;
+        Runnable runnable;
+        Function(int id, String name, Runnable runnable) {
+            this.id = id;
+            this.name = name;
+            this.runnable = runnable;
         }
+    }    
+    
+    class GameFunctor {
         Vector<Function> functions = new Vector<>();
         public void addFunction(int id, String name, Runnable runnable) {
             this.functions.add(new Function(id, name, runnable));
