@@ -173,12 +173,8 @@ public class Galaga implements KeyListener {
                     if(v == 3) {image = ImageIO.read(getClass().getResource("d-enemy.png"));}
                 } else if(plan.equals("B")) {
                     int v = r.nextInt(2);
-                    if(v == 0) {
-                        image = ImageIO.read(getClass().getResource("e-enemy.png"));
-                    }
-                    if(v == 1) {
-                        image = ImageIO.read(getClass().getResource("f-enemy.png"));
-                    }
+                    if(v == 0) image = ImageIO.read(getClass().getResource("e-enemy.png"));
+                    if(v == 1) image = ImageIO.read(getClass().getResource("f-enemy.png"));
                 }
                 init(plan);
             } catch(Exception e) {}
@@ -186,153 +182,102 @@ public class Galaga implements KeyListener {
         private void init(String plan) {
             if(plan.equals("A")) {
                 Action a = new Action();
-                a.movex = -2;
-                a.movey = 4;
-
+                a.movex = -2; a.movey = 4;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = 0;
-                a.movey = 2;
-
+                a.movex = 0; a.movey = 2;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = 2;
-                a.movey = 4;
-
-                actions.actions.add(a);
-
-
-                a = new Action();
-                a.movex = -2;
-                a.movey = -4;
-
+                a.movex = 2; a.movey = 4;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = -4;
-                a.movey = -6;
-
+                a.movex = -2; a.movey = -4;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = -0;
-                a.movey = -4;
+                a.movex = -4; a.movey = -6;
+                actions.actions.add(a);
 
+                a = new Action();
+                a.movex = -0; a.movey = -4;
                 actions.actions.add(a);
 
                 actionsSet.add(actions);
-            }
-            else if(plan.equals("B")) {
+            } else if(plan.equals("B")) {
                 Action a = new Action();
-                a.movex = 2;
-                a.movey = 4;
-
+                a.movex = 2; a.movey = 4;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = 0;
-                a.movey = 2;
-
+                a.movex = 0; a.movey = 2;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = 12;
-                a.movey = 4;
-
-                actions.actions.add(a);
-
-
-                a = new Action();
-                a.movex = 6;
-                a.movey = 6;
-
+                a.movex = 12; a.movey = 4;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = 10;
-                a.movey = 2;
-
+                a.movex = 6; a.movey = 6;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = 5;
-                a.movey = -8;
-
+                a.movex = 10; a.movey = 2;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = 2;
-                a.movey = -14;
-
+                a.movex = 5; a.movey = -8;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = 0;
-                a.movey = -14;
-
+                a.movex = 2; a.movey = -14;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = 0;
-                a.movey = -14;
-
+                a.movex = 0; a.movey = -14;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = 0;
-                a.movey = -14;
-
+                a.movex = 0; a.movey = -14;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = -5;
-                a.movey = -2;
+                a.movex = 0; a.movey = -14;
+                actions.actions.add(a);
 
+                a = new Action();
+                a.movex = -5; a.movey = -2;
                 actions.actions.add(a);
                 
                 a = new Action();
-                a.movex = -5;
-                a.movey = -2;
-
+                a.movex = -5; a.movey = -2;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = -5;
-                a.movey = -2;
-
+                a.movex = -5; a.movey = -2;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = -5;
-                a.movey = -2;
-
+                a.movex = -5; a.movey = -2;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = -5;
-                a.movey = -2;
-
+                a.movex = -5; a.movey = -2;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = -5;
-                a.movey = -2;
-
+                a.movex = -5; a.movey = -2;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = -5;
-                a.movey = -2;
-
+                a.movex = -5; a.movey = -2;
                 actions.actions.add(a);
 
                 if(y < 100) {
                     a = new Action();
-                    a.movex = -4;
-                    a.movey = 6;
-
+                    a.movex = -4; a.movey = 6;
                     actions.actions.add(a);
                 }
                 
@@ -341,12 +286,12 @@ public class Galaga implements KeyListener {
         }
         private void planMove() {
             for(Iterator<Actions> j = actionsSet.iterator();j.hasNext();) {
-                Actions q = j.next();
-                for(int ii = 0; ii<q.actions.size(); ii++) {
-                    ArrayList<Action> aa = q.actions;
+                Actions actions = j.next();
+                for(int ii = 0; ii<actions.actions.size(); ii++) {
+                    ArrayList<Action> action = actions.actions;
                     for(int i=0;i<=actionCursorIn;i++) {
                         try {
-                            Action z = aa.get(i);
+                            Action z = action.get(i);
                             if(actionCursorIn == 99999) {
                                 x += z.movex;
                                 y += z.movey;
@@ -357,7 +302,7 @@ public class Galaga implements KeyListener {
                                 x += z.movex;
                                 y += z.movey;
                                 actionCursorIn++;
-                                if(aa.size() == actionCursorIn)
+                                if(action.size() == actionCursorIn)
                                     actionCursorIn = 0;
                                 return;
                             }
@@ -383,11 +328,9 @@ public class Galaga implements KeyListener {
         public void init() {
             for(int i=0; i<200; i++) {
                 Random r = new Random();
-                int ae = r.nextInt(1200);
-                int er = r.nextInt(800);
                 Point p = new Point();
-                p.x = ae;
-                p.y = er;
+                p.x = r.nextInt(1200);
+                p.y = r.nextInt(800);
                 stars.add(p);
             }
         }
@@ -417,7 +360,6 @@ public class Galaga implements KeyListener {
         }
         
         vv--;
-        
         if(vv == 3)
             vv = 7;
     }
