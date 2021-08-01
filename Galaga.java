@@ -1,6 +1,7 @@
 package galaga;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
@@ -14,6 +15,8 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+//author @Danicel Cho
+//github.com/okelykodely
 public class Galaga implements KeyListener {
 
     JFrame j = new JFrame();
@@ -60,14 +63,17 @@ public class Galaga implements KeyListener {
             pt.y = y;
             lasers.add(pt);
         }
-        public void moveLasersAlong() {
+        public void moveLasersAlong(boolean UP) {
             for(Iterator<Point> it = lasers.iterator(); it.hasNext(); ) {
                 g.setColor(Color.WHITE);
                 Point pt = null;
                 try {
                     pt = it.next();
                     g.fillRect(pt.x, pt.y, 20, 40);
-                    pt.y -= 50;
+                    if(UP)
+                        pt.y -= 50;
+                    else
+                        pt.y += 10;
                 } catch(Exception e) {}
             }
         }
@@ -106,11 +112,17 @@ public class Galaga implements KeyListener {
         int actionCursor = 0;
         int actionCursorIn = 99999;
         int x, y;
+        Lasers lasers1 = new Lasers();
         Set<Actions> actionsSet = new HashSet<>();
         Actions actions = new Actions();
         public void draw() {
             try {
                 g.drawImage(image, x, y, 30, 30, null);
+                Random r = new Random();
+                int v = r.nextInt(100);
+                if(v == 0) {
+                    this.lasers1.addLaser(x, y+50);
+                }
             } catch(Exception e) {}
         }
         public boolean isAlive() {
@@ -129,18 +141,10 @@ public class Galaga implements KeyListener {
                 Random r = new Random();
                 if(plan.equals("A")) {
                     int v = r.nextInt(4);
-                    if(v == 0) {
-                        image = ImageIO.read(getClass().getResource("a-enemy.png"));
-                    }
-                    if(v == 1) {
-                        image = ImageIO.read(getClass().getResource("b-enemy.png"));
-                    }
-                    if(v == 2) {
-                        image = ImageIO.read(getClass().getResource("c-enemy.png"));
-                    }
-                    if(v == 3) {
-                        image = ImageIO.read(getClass().getResource("d-enemy.png"));
-                    }
+                    if(v == 0) {image = ImageIO.read(getClass().getResource("a-enemy.png"));}
+                    if(v == 1) {image = ImageIO.read(getClass().getResource("b-enemy.png"));}
+                    if(v == 2) {image = ImageIO.read(getClass().getResource("c-enemy.png"));}
+                    if(v == 3) {image = ImageIO.read(getClass().getResource("d-enemy.png"));}
                 } else if(plan.equals("B")) {
                     int v = r.nextInt(2);
                     if(v == 0) {
@@ -387,6 +391,9 @@ public class Galaga implements KeyListener {
         }
         
         vv--;
+        
+        if(vv == 3)
+            vv = 7;
     }
     
     public Galaga() {
@@ -437,9 +444,16 @@ public class Galaga implements KeyListener {
                     drawEnemies();
                     
                     a.draw();
-                    lasers.moveLasersAlong();
+                    lasers.moveLasersAlong(true);
                     
                     for(int i=0; i<enemies.size(); i++) {
+                        enemies.get(i).lasers1.moveLasersAlong(false);
+                        for(int j=0; j<enemies.get(i).lasers1.lasers.size(); j++) {
+                            if(enemies.get(i).lasers1.lasers.get(j).x >= a.x && enemies.get(i).lasers1.lasers.get(j).x <= a.x + 30 &&
+                                    enemies.get(i).lasers1.lasers.get(j).y >= a.y && enemies.get(i).lasers1.lasers.get(j).y <= a.y + 30) {
+                                System.exit(0);
+                            }
+                        }
                         if(!enemies.get(i).isAlive()) {
                             enemies.remove(enemies.get(i));
                             points += 100;
@@ -462,7 +476,16 @@ public class Galaga implements KeyListener {
     }
     
     public static void main(String[] args) {
-        Galaga galaga = new Galaga();
+        try {
+            EventQueue.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    Galaga galaga = new Galaga();
+                }
+            });
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
     
 }
