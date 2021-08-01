@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
+import java.util.Vector;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -26,6 +27,29 @@ public class Galaga implements KeyListener {
     PlayerOne a = new PlayerOne();
     Lasers lasers = new Lasers();
     int points = 0;
+    
+    class GameFunctor {
+        class Function {
+            int id;
+            String name;
+            Runnable runnable;
+            Function(int id, String name, Runnable runnable) {
+                this.id = id;
+                this.name = name;
+                this.runnable = runnable;
+            }
+        }
+        Vector<Function> functions = new Vector<>();
+        public void addFunction(int id, String name, Runnable runnable) {
+            this.functions.add(new Function(id, name, runnable));
+        }
+        public void startLoop() {
+            for(Iterator<Function> it = functions.iterator(); it.hasNext();) {
+                Function func = it.next();
+                func.runnable.run();
+            }
+        }
+    }
     
     @Override
     public void keyTyped(KeyEvent ke) {
@@ -396,24 +420,45 @@ public class Galaga implements KeyListener {
             vv = 7;
     }
     
+    int game_width= 1300;
+    int game_height = 900;
+    
+    int frame_width = 1200;
+    int frame_height = 800;
+    
+    JPanel rightSidePanel = new JPanel();
+    int right_side_panel_width = 100;
+    int right_side_panel_height = 800;
+    
+    JPanel bottomSidePanel = new JPanel();
+    int bot_side_panel_width = 1300;
+    int bot_side_panel_height = 100;
+
     public Galaga() {
         
         j.setLayout(null);
-        j.setBounds(0, 0, 1200, 800);
-        p.setBounds(j.getBounds());
+        j.setBounds(0, 0, game_width, game_height);
+        p.setBounds(0, 0, frame_width, frame_height);
+        rightSidePanel.setLayout(null);
+        rightSidePanel.setBounds(frame_width, 0, right_side_panel_width, right_side_panel_height);
+        rightSidePanel.setBackground(Color.PINK);
         j.add(p);
+        j.add(rightSidePanel);
+        bottomSidePanel.setLayout(null);
+        bottomSidePanel.setBounds(0, frame_height, bot_side_panel_width, bot_side_panel_height);
+        bottomSidePanel.setBackground(Color.YELLOW);
+        j.add(bottomSidePanel);
         j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         j.setVisible(true);
-        
+        j.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        j.setVisible(true);        
         g = p.getGraphics();
+        j.addKeyListener(this);
         
         stars.init();
-        
         initEnemies();
         initEnemies();
-        
-        j.addKeyListener(this);
         
         play();
     }
@@ -426,53 +471,86 @@ public class Galaga implements KeyListener {
     }
     
     private void play() {
+        //where u at?
         a.x = 500;
         a.y = 700;
-        Thread t = new Thread() {
+
+        GameFunctor gf = new GameFunctor();
+        gf.addFunction(1, "sleepOrPause", new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(100);
+                } catch(Exception e) {}
+            }
+        });
+        
+        gf.addFunction(2, "cleerScreen", new Runnable() {
+            @Override
+            public void run() {
+                g.setColor(Color.BLACK);
+                g.fillRect(0, 0, 1200, 800);
+                stars.draw();
+            }
+        });
+        
+        gf.addFunction(3, "st", new Runnable() {
+            @Override
+            public void run() {
+                activateEnemies();
+                drawEnemies();
+            }
+        });
+        
+        gf.addFunction(4, "draw", new Runnable() {
+            @Override
+            public void run() {
+                a.draw();
+                lasers.moveLasersAlong(true);
+            }
+        });
+
+        gf.addFunction(5, "checkDiedth", new Runnable() {
+            @Override
+            public void run() {
+                for(int i=0; i<enemies.size(); i++) {
+                    enemies.get(i).lasers1.moveLasersAlong(false);
+                    for(int j=0; j<enemies.get(i).lasers1.lasers.size(); j++) {
+                        if(enemies.get(i).lasers1.lasers.get(j).x >= a.x && enemies.get(i).lasers1.lasers.get(j).x <= a.x + 30 &&
+                                enemies.get(i).lasers1.lasers.get(j).y >= a.y && enemies.get(i).lasers1.lasers.get(j).y <= a.y + 30) {
+                            System.exit(0);
+                        }
+                    }
+                    if(!enemies.get(i).isAlive()) {
+                        enemies.remove(enemies.get(i));
+                        points += 100;
+                    }
+                }
+
+                if(enemies.size() <= 2) {
+                    initEnemies();
+                    initEnemies();
+                }
+            }
+        });
+
+        gf.addFunction(6, "titleIt", new Runnable() {
+            @Override
+            public void run() {
+                g.setColor(Color.WHITE);
+                g.drawString("Points: " + points, 100, 100);
+                j.setTitle("Enemies: " + enemies.size());
+            }
+        });
+        
+        Thread main = new Thread() {
             public void run() {
                 while(true) {
-                    try {
-                        Thread.sleep(100);
-                    } catch(Exception e) {}
-                    
-                    g.setColor(Color.BLACK);
-                    g.fillRect(0, 0, 1200, 800);
-                    stars.draw();
-                    
-                    
-                    activateEnemies();
-                    drawEnemies();
-                    
-                    a.draw();
-                    lasers.moveLasersAlong(true);
-                    
-                    for(int i=0; i<enemies.size(); i++) {
-                        enemies.get(i).lasers1.moveLasersAlong(false);
-                        for(int j=0; j<enemies.get(i).lasers1.lasers.size(); j++) {
-                            if(enemies.get(i).lasers1.lasers.get(j).x >= a.x && enemies.get(i).lasers1.lasers.get(j).x <= a.x + 30 &&
-                                    enemies.get(i).lasers1.lasers.get(j).y >= a.y && enemies.get(i).lasers1.lasers.get(j).y <= a.y + 30) {
-                                System.exit(0);
-                            }
-                        }
-                        if(!enemies.get(i).isAlive()) {
-                            enemies.remove(enemies.get(i));
-                            points += 100;
-                        }
-                    }
-                    
-                    if(enemies.size() <= 2) {
-                        initEnemies();
-                        initEnemies();
-                    }
-                    
-                    g.setColor(Color.WHITE);
-                    g.drawString("Points: " + points, 100, 100);
-                    
-                    j.setTitle("Enemies: " + enemies.size());
+                    gf.startLoop();
                 }
             }
         };
-        t.start();
+        main.start();
     }
     
     public static void main(String[] args) {
