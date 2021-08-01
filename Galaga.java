@@ -57,21 +57,22 @@ public class Galaga implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent ke) {
-        if(ke.getKeyCode() == KeyEvent.VK_SPACE) {
-            lasers.addLaser(a.x, a.y);
-        }
-        
-        if(ke.getKeyCode() == KeyEvent.VK_UP) {
-            a.y -= 10;
-        }
-        if(ke.getKeyCode() == KeyEvent.VK_DOWN) {
-            a.y += 10;
-        }
-        if(ke.getKeyCode() == KeyEvent.VK_LEFT) {
-            a.x -= 10;
-        }
-        if(ke.getKeyCode() == KeyEvent.VK_RIGHT) {
-            a.x += 10;
+        switch(ke.getKeyCode()) {
+            case KeyEvent.VK_SPACE:
+                lasers.addLaser(a.x, a.y);
+                break;
+            case KeyEvent.VK_UP:
+                a.y -= 10;
+                break;
+            case KeyEvent.VK_DOWN:
+                a.y += 10;
+                break;
+            case KeyEvent.VK_LEFT:
+                a.x -= 10;
+                break;
+            case KeyEvent.VK_RIGHT:
+                a.x += 10;
+                break;
         }
     }
 
