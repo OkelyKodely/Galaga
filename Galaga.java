@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 //github.com/okelykodely
 public class Galaga implements KeyListener {
 
+    GameFunctor gf = new GameFunctor();
     JFrame j = new JFrame();
     JPanel p = new JPanel();
     Graphics g = null;
@@ -28,6 +29,17 @@ public class Galaga implements KeyListener {
     Lasers lasers = new Lasers();
     int points = 0;
     
+    int game_width= 1300;
+    int game_height = 900;
+    int frame_width = 1200;
+    int frame_height = 800;
+    JPanel rightSidePanel = new JPanel();
+    int right_side_panel_width = 100;
+    int right_side_panel_height = 800;
+    JPanel bottomSidePanel = new JPanel();
+    int bot_side_panel_width = 1300;
+    int bot_side_panel_height = 400;
+
     class Function {
         int id;
         String name;
@@ -364,20 +376,6 @@ public class Galaga implements KeyListener {
             vv = 7;
     }
     
-    int game_width= 1300;
-    int game_height = 900;
-    
-    int frame_width = 1200;
-    int frame_height = 800;
-    
-    JPanel rightSidePanel = new JPanel();
-    int right_side_panel_width = 100;
-    int right_side_panel_height = 800;
-    
-    JPanel bottomSidePanel = new JPanel();
-    int bot_side_panel_width = 1300;
-    int bot_side_panel_height = 100;
-
     public Galaga() {
         
         j.setLayout(null);
@@ -390,7 +388,6 @@ public class Galaga implements KeyListener {
         j.add(rightSidePanel);
         bottomSidePanel.setLayout(null);
         bottomSidePanel.setBounds(0, frame_height, bot_side_panel_width, bot_side_panel_height);
-        bottomSidePanel.setBackground(Color.YELLOW);
         j.add(bottomSidePanel);
         j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
@@ -404,27 +401,16 @@ public class Galaga implements KeyListener {
         initEnemies();
         initEnemies();
         
-        play();
-    }
-    
-    private void drawEnemies() {
-        for(int i=0; i<enemies.size(); i++) {
-            Enemy enemy = enemies.get(i);
-            enemy.draw();
-        }
-    }
-    
-    private void play() {
-        //where u at?
-        a.x = 500;
-        a.y = 700;
-
-        GameFunctor gf = new GameFunctor();
         gf.addFunction(1, "sleepOrPause", new Runnable() {
             @Override
             public void run() {
                 try {
                     Thread.sleep(100);
+                } catch(Exception e) {}
+                try {
+                    Graphics g2 = bottomSidePanel.getGraphics();
+                    Image iii = ImageIO.read(getClass().getResource("bot1.png"));
+                    g2.drawImage(iii, 0, 0, 1300, 180, null);
                 } catch(Exception e) {}
             }
         });
@@ -483,10 +469,26 @@ public class Galaga implements KeyListener {
             public void run() {
                 g.setColor(Color.WHITE);
                 g.drawString("Points: " + points, 100, 100);
+                g.drawString("Arrow Keys to move & SPACEBAR to shoot with.", 700, 100);
                 j.setTitle("Enemies: " + enemies.size());
             }
         });
-        
+
+        play();
+    }
+    
+    private void drawEnemies() {
+        for(int i=0; i<enemies.size(); i++) {
+            Enemy enemy = enemies.get(i);
+            enemy.draw();
+        }
+    }
+    
+    private void play() {
+        //where u at?
+        a.x = 500;
+        a.y = 700;
+
         Thread main = new Thread() {
             public void run() {
                 while(true) {
