@@ -1,7 +1,7 @@
 package galaga;
 
 import java.awt.Color;
-import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
@@ -13,13 +13,16 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 //author @Danicel Cho
 //github.com/okelykodely
 public class Galaga implements KeyListener {
-
+    
+    int lives = 10;
     GameFunctor gf = new GameFunctor();
     JFrame j = new JFrame();
     JPanel p = new JPanel();
@@ -27,8 +30,13 @@ public class Galaga implements KeyListener {
     ArrayList<Enemy> enemies = new ArrayList<>();
     PlayerOne a = new PlayerOne();
     Lasers lasers = new Lasers();
+    Boss boss1 = new Boss(1);
+    Boss boss2 = new Boss(2);
+    Boss boss3 = new Boss(3);
+    Boss boss4 = new Boss(4);
     int points = 0;
-    
+
+    boolean move_stars = false;
     int game_width= 1300;
     int game_height = 900;
     int frame_width = 1200;
@@ -61,6 +69,39 @@ public class Galaga implements KeyListener {
                 Function func = it.next();
                 func.runnable.run();
             }
+        }
+    }
+    
+    class Boss {
+        int x, y;
+        int lives = 100;
+        Image img = null;
+        int level = 1;
+        Boss(int level) {
+            this.level = level;
+            if(this.level == 1) {
+                try {
+                    img = ImageIO.read(getClass().getResource("boss1.gif"));
+                } catch(Exception e) {}
+            } else if(this.level == 2) {
+                try {
+                    img = ImageIO.read(getClass().getResource("boss2.gif"));
+                } catch(Exception e) {}
+            } else if(this.level == 3) {
+                try {
+                    img = ImageIO.read(getClass().getResource("boss3.gif"));
+                } catch(Exception e) {e.printStackTrace();}
+            } else if(this.level == 4) {
+                try {
+                    img = ImageIO.read(getClass().getResource("boss4.gif"));
+                } catch(Exception e) {e.printStackTrace();}
+            }
+        }
+        public void draw() {
+            try {
+                ImageIcon ii = new ImageIcon(img);
+                g.drawImage(ii.getImage(), x, y, null);
+            } catch(Exception e) {e.printStackTrace();}
         }
     }
     
@@ -103,11 +144,11 @@ public class Galaga implements KeyListener {
         }
         public void moveLasersAlong(boolean UP) {
             for(Iterator<Point> it = lasers.iterator(); it.hasNext(); ) {
-                g.setColor(Color.WHITE);
+                g.setColor(Color.RED);
                 Point pt = null;
                 try {
                     pt = it.next();
-                    g.fillRect(pt.x, pt.y, 20, 40);
+                    g.fillRect(pt.x, pt.y, 5, 30 )  ;
                     if(UP)
                         pt.y -= 50;
                     else
@@ -145,6 +186,7 @@ public class Galaga implements KeyListener {
     }
     
     class Enemy {
+        Bombs bombs = new Bombs();
         Image image = null;
         int lives = 2;
         int actionCursor = 0;
@@ -206,11 +248,11 @@ public class Galaga implements KeyListener {
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = -2; a.movey = -4;
+                a.movex = 2; a.movey = -4;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = -4; a.movey = -6;
+                a.movex = 4; a.movey = -6;
                 actions.actions.add(a);
 
                 a = new Action();
@@ -240,23 +282,23 @@ public class Galaga implements KeyListener {
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = 5; a.movey = -8;
+                a.movex = 5; a.movey = -5;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = 2; a.movey = -14;
+                a.movex = 2; a.movey = -4;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = 0; a.movey = -14;
+                a.movex = 0; a.movey = -4;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = 0; a.movey = -14;
+                a.movex = 0; a.movey = -4;
                 actions.actions.add(a);
 
                 a = new Action();
-                a.movex = 0; a.movey = -14;
+                a.movex = 0; a.movey = -4;
                 actions.actions.add(a);
 
                 a = new Action();
@@ -337,6 +379,10 @@ public class Galaga implements KeyListener {
     
     class Stars {
         ArrayList<Point> stars = new ArrayList<>();
+        int moveLeft = 1;
+        int amountMoveStars = 0;
+        int movedCount = 0;
+        int movedCycle = 0;
         public void init() {
             for(int i=0; i<200; i++) {
                 Random r = new Random();
@@ -349,12 +395,38 @@ public class Galaga implements KeyListener {
         public void draw() {
             g.setColor(Color.WHITE);
             for(int i=0; i<stars.size(); i++) {
+                stars.get(i).x += amountMoveStars;
                 g.drawOval(stars.get(i).x, stars.get(i).y, 1, 1);
+            }
+            if(move_stars) {
+                movedCount++;
+                if(moveLeft == 1) {
+                    amountMoveStars = -15;
+                    if(movedCount == 1) {
+                        moveLeft = 0;
+                        movedCount = 0;
+                    }
+                } else if(moveLeft != 1) {
+                    amountMoveStars = 15;
+                    if(movedCount == 1) {
+                        moveLeft = 1;
+                        movedCount = 0;
+                        movedCycle++;
+                        if(movedCycle >= 2) {
+                            move_stars = false;
+                            amountMoveStars = 0;
+                            movedCycle = 0;
+                        }
+                    }
+                }
             }
         }
     }
     
     private void initEnemies() {
+        
+        initCount++;
+        
         String plan = "A";
         int v = 50;
         for(int i=0; i<3; i++) {
@@ -375,6 +447,10 @@ public class Galaga implements KeyListener {
         if(vv == 3)
             vv = 7;
     }
+    
+    int totalBombs = 0;
+    
+    int initCount = 0;
     
     public Galaga() {
         
@@ -397,6 +473,32 @@ public class Galaga implements KeyListener {
         g = p.getGraphics();
         j.addKeyListener(this);
         
+        
+        Graphics g1 = rightSidePanel.getGraphics();
+        Thread t1 = new Thread() {
+            public void run() {
+                int y = 10;
+                while(true) {
+                    try {
+                        Thread.sleep(10);
+                        g1.setColor(Color.PINK);
+                        g1.fillRect(0, 0, 100, 800);
+                        g1.setColor(Color.BLACK);
+                        g1.setFont(new Font("Arial", Font.BOLD, 16));
+                        y+=2;
+                        y+=2;
+                        y+=3;
+                        g1.drawString("GALAGA", 10, y);
+                        g1.drawString("GALAGA", 10, 200+y);
+                        g1.drawString("GALAGA", 10, 400+y);
+                        if(y > 500)
+                            y=10;
+                    } catch(Exception e) {}
+                }
+            }
+        };
+        t1.start();
+        
         stars.init();
         initEnemies();
         initEnemies();
@@ -405,7 +507,7 @@ public class Galaga implements KeyListener {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(50) ;
                 } catch(Exception e) {}
                 try {
                     Graphics g2 = bottomSidePanel.getGraphics();
@@ -444,11 +546,23 @@ public class Galaga implements KeyListener {
             @Override
             public void run() {
                 for(int i=0; i<enemies.size(); i++) {
+                    for(int j=0; j<enemies.get(j).bombs.bombs.size(); j++) {
+                        try {
+                            enemies.get(j).bombs.moveAlongBombs();
+                            enemies.get(j).bombs.drawAll();
+                        } catch(Exception e) {}
+                    }
+                    Random random = new Random();
+                    int randomValue = random.nextInt(480);
+                    if(randomValue == 0) {
+                        enemies.get(i).bombs.throwBomb(enemies.get(i).x, enemies.get(i).y);
+                        move_stars = true;
+                    }
                     enemies.get(i).lasers1.moveLasersAlong(false);
                     for(int j=0; j<enemies.get(i).lasers1.lasers.size(); j++) {
                         if(enemies.get(i).lasers1.lasers.get(j).x >= a.x && enemies.get(i).lasers1.lasers.get(j).x <= a.x + 30 &&
                                 enemies.get(i).lasers1.lasers.get(j).y >= a.y && enemies.get(i).lasers1.lasers.get(j).y <= a.y + 30) {
-                            System.exit(0);
+                            lives --;
                         }
                     }
                     if(!enemies.get(i).isAlive()) {
@@ -456,10 +570,37 @@ public class Galaga implements KeyListener {
                         points += 100;
                     }
                 }
-
                 if(enemies.size() <= 2) {
                     initEnemies();
                     initEnemies();
+                }
+                if(initCount >= 3 && initCount < 5) {
+                    Random v = new Random();
+                    int randomX = v.nextInt(10) - v.nextInt(10);
+                    boss1.x = 400+randomX;
+                    boss1.y = 200;
+                    boss1.draw();
+                }
+                if(initCount >= 6 && initCount < 8) {
+                    Random v = new Random();
+                    int randomX = v.nextInt(10) - v.nextInt(10);
+                    boss2.x = 400+randomX;
+                    boss2.y = 200;
+                    boss2.draw();
+                }
+                if(initCount >= 9 && initCount < 11) {
+                    Random v = new Random();
+                    int randomX = v.nextInt(10) - v.nextInt(10);
+                    boss3.x = 400+randomX;
+                    boss3.y = 200;
+                    boss3.draw();
+                }
+                if(initCount >= 12 && initCount < 14) {
+                    Random v = new Random();
+                    int randomX = v.nextInt(10) - v.nextInt(10);
+                    boss4.x = 400+randomX;
+                    boss4.y = 200;
+                    boss4.draw();
                 }
             }
         });
@@ -468,13 +609,64 @@ public class Galaga implements KeyListener {
             @Override
             public void run() {
                 g.setColor(Color.WHITE);
+                g.setFont(new Font("Arial", Font.BOLD, 20));
                 g.drawString("Points: " + points, 100, 100);
                 g.drawString("Arrow Keys to move & SPACEBAR to shoot with.", 700, 100);
-                j.setTitle("Enemies: " + enemies.size());
+                j.setTitle("Lives: " + lives);
+                if(lives == 0)
+                    System.exit(0);
             }
         });
 
         play();
+    }
+
+    public static enum BombState {
+        MOVE, TRAP
+    }
+    
+    class Bombs {
+        ArrayList<Bomb> bombs = new ArrayList<>();
+        class Bomb {
+            int x, y;
+            BombState bs = BombState.MOVE;
+            int iter = 0;
+            int widthHeight = 20;
+        }
+        public void throwBomb(int enemyx, int enemyy) {
+            Bomb bomb = new Bomb();
+            bomb.x = enemyx;
+            bomb.y = enemyy;
+            bombs.add(bomb);
+        }
+        public void drawAll() {
+            for(int i=0; i<bombs.size(); i++) {
+                Bomb bomb = bombs.get(i);
+                draw(bomb);
+            }
+        }
+        public void draw(Bomb bomb) {
+            g.setColor(Color.PINK);
+            g.drawOval(bomb.x, bomb.y, bomb.widthHeight, bomb.widthHeight);
+        }
+        public void moveAlongBombs() {
+            for(int i=0; i<bombs.size(); i++) {
+                Bomb bomb = bombs.get(i);
+                if(bomb.bs == BombState.MOVE) {
+                    bomb.y += 3;
+                }
+                bomb.iter++;
+                if(bomb.iter > 9) {
+                    bomb.bs = BombState.TRAP;
+                }
+                if(bomb.bs == BombState.TRAP) {
+                    bomb.widthHeight++;
+                    if(bomb.iter > 95) {
+                        bombs.remove(bomb);
+                    }
+                }
+            }
+        }
     }
     
     private void drawEnemies() {
@@ -501,15 +693,12 @@ public class Galaga implements KeyListener {
     
     public static void main(String[] args) {
         try {
-            EventQueue.invokeAndWait(new Runnable() {
+            SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
                     Galaga galaga = new Galaga();
                 }
             });
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+        } catch(Exception e) {}
     }
-    
 }
