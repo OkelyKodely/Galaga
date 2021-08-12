@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,6 +14,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
 import javax.imageio.ImageIO;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -74,33 +76,49 @@ public class Galaga implements KeyListener {
     
     class Boss {
         int x, y;
-        int lives = 100;
-        Image img = null;
+        int lives = 20;
+        URL url = null;
         int level = 1;
         Boss(int level) {
             this.level = level;
             if(this.level == 1) {
                 try {
-                    img = ImageIO.read(getClass().getResource("boss1.gif"));
+                    url = this.getClass().getResource("boss1.gif");
                 } catch(Exception e) {}
             } else if(this.level == 2) {
                 try {
-                    img = ImageIO.read(getClass().getResource("boss2.gif"));
+                    url = this.getClass().getResource("boss2.gif");
                 } catch(Exception e) {}
             } else if(this.level == 3) {
                 try {
-                    img = ImageIO.read(getClass().getResource("boss3.gif"));
+                    url = this.getClass().getResource("boss3.gif");
                 } catch(Exception e) {e.printStackTrace();}
             } else if(this.level == 4) {
                 try {
-                    img = ImageIO.read(getClass().getResource("boss4.gif"));
+                    url = this.getClass().getResource("boss4.gif");
                 } catch(Exception e) {e.printStackTrace();}
             }
         }
+        public boolean isAlive() {
+            if(lives <= 0)
+                return false;
+            else
+                return true;
+        }
+        public boolean isDowned() {
+            for(int i=0; i<lasers.lasers.size(); i++) {
+                if(lasers.lasers.get(i).x >= x && lasers.lasers.get(i).x <= x + 200 &&
+                        lasers.lasers.get(i).y >= y && lasers.lasers.get(i).y <= y + 200) {
+                    lives--;
+                    return false;
+                }
+            }
+            return true;
+        }
         public void draw() {
             try {
-                ImageIcon ii = new ImageIcon(img);
-                g.drawImage(ii.getImage(), x, y, null);
+                ImageIcon icon = new ImageIcon(url);
+                g.drawImage(icon.getImage(), x, y, null);
             } catch(Exception e) {e.printStackTrace();}
         }
     }
@@ -145,12 +163,14 @@ public class Galaga implements KeyListener {
         public void moveLasersAlong(boolean UP) {
             for(Iterator<Point> it = lasers.iterator(); it.hasNext(); ) {
                 g.setColor(Color.RED);
+                if(UP)
+                    g.setColor(Color.BLUE);
                 Point pt = null;
                 try {
                     pt = it.next();
                     g.fillRect(pt.x, pt.y, 5, 30 )  ;
                     if(UP)
-                        pt.y -= 50;
+                        pt.y -= 30;
                     else
                         pt.y += 10;
                 } catch(Exception e) {}
@@ -429,16 +449,16 @@ public class Galaga implements KeyListener {
         
         String plan = "A";
         int v = 50;
-        for(int i=0; i<3; i++) {
-            Enemy enemy = new Enemy(300, vv*100, plan);
+        for(int i=0; i<4; i++) {
+            Enemy enemy = new Enemy(300, vv*100-130, plan);
             enemy.x += v*i;
             enemies.add(enemy);
         }
 
         plan = "B";
         v = 50;
-        for(int i=0; i<4; i++) {
-            Enemy enemy = new Enemy(800, vv*100, plan);
+        for(int i=0; i<6; i++) {
+            Enemy enemy = new Enemy(800, vv*100-130, plan);
             enemy.x += v*i;
             enemies.add(enemy);
         }
@@ -451,6 +471,8 @@ public class Galaga implements KeyListener {
     int totalBombs = 0;
     
     int initCount = 0;
+    
+    Image iii = null;
     
     public Galaga() {
         
@@ -470,7 +492,6 @@ public class Galaga implements KeyListener {
         j.setVisible(true);
         j.setExtendedState(JFrame.MAXIMIZED_BOTH); 
         j.setVisible(true);        
-        g = p.getGraphics();
         j.addKeyListener(this);
         
         
@@ -497,22 +518,31 @@ public class Galaga implements KeyListener {
                 }
             }
         };
-        t1.start();
+        //t1.start();
         
         stars.init();
         initEnemies();
         initEnemies();
         
+        g = p.getGraphics();
+
+        Graphics g2 = bottomSidePanel.getGraphics();
+        
+        try {
+            Thread.sleep(1130);
+        } catch(Exception e) {}
+        try {
+            iii = ImageIO.read(getClass().getResource("bot1.png"));
+        } catch(Exception e) {}
+        try {
+            g2.drawImage(iii, 0, 0, 1300, 180, null);
+        } catch(Exception e) {}
+
         gf.addFunction(1, "sleepOrPause", new Runnable() {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(50) ;
-                } catch(Exception e) {}
-                try {
-                    Graphics g2 = bottomSidePanel.getGraphics();
-                    Image iii = ImageIO.read(getClass().getResource("bot1.png"));
-                    g2.drawImage(iii, 0, 0, 1300, 180, null);
+                    Thread.sleep(130);
                 } catch(Exception e) {}
             }
         });
@@ -546,12 +576,14 @@ public class Galaga implements KeyListener {
             @Override
             public void run() {
                 for(int i=0; i<enemies.size(); i++) {
-                    for(int j=0; j<enemies.get(j).bombs.bombs.size(); j++) {
-                        try {
-                            enemies.get(j).bombs.moveAlongBombs();
-                            enemies.get(j).bombs.drawAll();
-                        } catch(Exception e) {}
-                    }
+                    try {
+                        for(int j=0; j<enemies.get(j).bombs.bombs.size(); j++) {
+                            try {
+                                enemies.get(j).bombs.moveAlongBombs();
+                                enemies.get(j).bombs.drawAll();
+                            } catch(Exception e) {}
+                        }
+                    } catch(Exception e) {}
                     Random random = new Random();
                     int randomValue = random.nextInt(480);
                     if(randomValue == 0) {
@@ -570,37 +602,63 @@ public class Galaga implements KeyListener {
                         points += 100;
                     }
                 }
-                if(enemies.size() <= 2) {
+                if(initCount >= 0 && initCount <= 2 && enemies.size() <= 2) {
+                    boss1.isDowned();
                     initEnemies();
                     initEnemies();
                 }
                 if(initCount >= 3 && initCount < 5) {
-                    Random v = new Random();
-                    int randomX = v.nextInt(10) - v.nextInt(10);
-                    boss1.x = 400+randomX;
-                    boss1.y = 200;
-                    boss1.draw();
+                    boss1.isDowned();
+                    if(enemies.size() <= 2) {
+                        initEnemies();
+                        initEnemies();
+                    } else {
+                        Random v = new Random();
+                        int randomX = v.nextInt(10) - v.nextInt(10);
+                        boss1.x = 400+randomX;
+                        boss1.y = 200;
+                        boss1.draw();
+                    }
                 }
-                if(initCount >= 6 && initCount < 8) {
-                    Random v = new Random();
-                    int randomX = v.nextInt(10) - v.nextInt(10);
-                    boss2.x = 400+randomX;
-                    boss2.y = 200;
-                    boss2.draw();
+                else if(initCount >= 6 && initCount < 8) {
+                    boss2.isDowned();
+                    if(enemies.size() <= 3 && !boss2.isAlive()) {
+                        initEnemies();
+                        initEnemies();
+                        initEnemies();
+                    } else {
+                        Random v = new Random();
+                        int randomX = v.nextInt(10) - v.nextInt(10);
+                        boss2.x = 400+randomX;
+                        boss2.y = 200;
+                        boss2.draw();
+                    }
                 }
-                if(initCount >= 9 && initCount < 11) {
-                    Random v = new Random();
-                    int randomX = v.nextInt(10) - v.nextInt(10);
-                    boss3.x = 400+randomX;
-                    boss3.y = 200;
-                    boss3.draw();
-                }
-                if(initCount >= 12 && initCount < 14) {
-                    Random v = new Random();
-                    int randomX = v.nextInt(10) - v.nextInt(10);
-                    boss4.x = 400+randomX;
-                    boss4.y = 200;
-                    boss4.draw();
+                else if(initCount >= 9 && initCount < 11) {
+                    boss3.isDowned();
+                    if(enemies.size() <= 3 && !boss3.isAlive()) {
+                        initEnemies();
+                        initEnemies();
+                        initEnemies();
+                    } else {
+                        Random v = new Random();
+                        int randomX = v.nextInt(10) - v.nextInt(10);
+                        boss3.x = 400+randomX;
+                        boss3.y = 200;
+                        boss3.draw();
+                    }
+                }else if(initCount >= 12 && initCount < 14) {
+                    boss4.isDowned();
+                    if(enemies.size() <= 3 && !boss4.isAlive()) {
+                        initEnemies();
+                        initEnemies();
+                    } else {
+                        Random v = new Random();
+                        int randomX = v.nextInt(10) - v.nextInt(10);
+                        boss4.x = 400+randomX;
+                        boss4.y = 200;
+                        boss4.draw();
+                    }
                 }
             }
         });
