@@ -48,6 +48,99 @@ public class Galaga implements KeyListener {
     JPanel bottomSidePanel = new JPanel();
     int bot_side_panel_width = 1300;
     int bot_side_panel_height = 400;
+    
+    Rocks rocks = new Rocks();
+    
+    class Rocks {
+        ArrayList<Rock> rs = new ArrayList<>();
+        long countDown = 1000;
+        int cnt = 0;
+        final static int INIT_SIZE = 20;
+        Rocks() {
+            for(int i=0; i<INIT_SIZE; i++) {
+                Rock rock = new Rock();
+                Random r = new Random();
+                rock.width = r.nextInt(36);
+                rock.height = r.nextInt(50);
+                rock.x = r.nextInt(1200);
+                rock.y = -r.nextInt(40);
+                rs.add(rock);
+            }
+        }
+        public boolean moveDownAlong() {
+            if(countDown == 0) {
+                return false;
+            }
+            if(cnt == 14) {
+                {Rock rock = new Rock();
+                Random r = new Random();
+                rock.width = r.nextInt(36);
+                rock.height = r.nextInt(50);
+                rock.x = r.nextInt(1200);
+                rock.y = -r.nextInt(40);
+                rs.add(rock);}
+                {Rock rock = new Rock();
+                Random r = new Random();
+                rock.width = r.nextInt(36);
+                rock.height = r.nextInt(50);
+                rock.x = r.nextInt(1200);
+                rock.y = -r.nextInt(40);
+                rs.add(rock);}
+                {Rock rock = new Rock();
+                Random r = new Random();
+                rock.width = r.nextInt(36);
+                rock.height = r.nextInt(50);
+                rock.x = r.nextInt(1200);
+                rock.y = -r.nextInt(40);
+                rs.add(rock);}
+                {Rock rock = new Rock();
+                Random r = new Random();
+                rock.width = r.nextInt(36);
+                rock.height = r.nextInt(50);
+                rock.x = r.nextInt(1200);
+                rock.y = -r.nextInt(40);
+                rs.add(rock);}
+                {Rock rock = new Rock();
+                Random r = new Random();
+                rock.width = r.nextInt(36);
+                rock.height = r.nextInt(50);
+                rock.x = r.nextInt(1200);
+                rock.y = -r.nextInt(40);
+                rs.add(rock);}
+                cnt = -1;
+            }
+            cnt++;
+            countDown--;
+            for(int i=0; i<rs.size(); i++) {
+                rs.get(i).y += 8;
+                if(rs.get(i).isCrashed()) {
+                    rs.remove(rs.get(i));
+                }
+            }
+            this.drawAll();
+            return true;
+        }
+        private void drawAll() {
+            for(int i=0; i<rs.size(); i++) {
+                g.setColor(new Color(100, 130, 80));
+                g.fillOval(rs.get(i).x, rs.get(i).y, rs.get(i).width, rs.get(i).height);
+            }
+        }
+    }
+    
+    class Rock {
+        int width = 0;
+        int height = 0;
+        int x, y;
+        public boolean isCrashed() {
+            if(a.x >= x && a.x <= x + width &&
+                    a.y >= y && a.y <= y + height) {
+                a.lives--;
+                return true;
+            }
+            return false;
+        }
+    }
 
     class Function {
         int id;
@@ -436,10 +529,10 @@ public class Galaga implements KeyListener {
         int movedCount = 0;
         int movedCycle = 0;
         public void init() {
-            for(int i=0; i<200; i++) {
+            for(int i=0; i<500; i++) {
                 Random r = new Random();
                 Point p = new Point();
-                p.x = r.nextInt(1200);
+                p.x = r.nextInt(1900);
                 p.y = r.nextInt(800);
                 stars.add(p);
             }
@@ -538,8 +631,8 @@ public class Galaga implements KeyListener {
         j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         j.setVisible(true);
-        j.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-        j.setVisible(true);        
+        //j.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        //j.setVisible(true);        
         j.addKeyListener(this);
         
         
@@ -617,8 +710,8 @@ public class Galaga implements KeyListener {
         t1.start();
         
         stars.init();
-        initEnemies();
-        initEnemies();
+//        initEnemies();
+//        initEnemies();
         
         g = p.getGraphics();
 
@@ -699,10 +792,10 @@ public class Galaga implements KeyListener {
                     }
                 }
                 if(initCount >= 0 && initCount <= 6 && enemies.size() <= 2) {
-                    boss1.isDowned();
-                    enemies.clear();
-                    initEnemies();
-                    initEnemies();
+                    if(!rocks.moveDownAlong()) {
+                        initEnemies();
+                        initEnemies();
+                    }
                 }
                 else if(initCount >= 3 && initCount < 5) {
                     boss1.isDowned();
