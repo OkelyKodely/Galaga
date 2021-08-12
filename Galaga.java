@@ -134,16 +134,20 @@ public class Galaga implements KeyListener {
                 lasers.addLaser(a.x, a.y);
                 break;
             case KeyEvent.VK_UP:
-                a.y -= 10;
+                if(a.y - 8 >= 0)
+                    a.y -= 8;
                 break;
             case KeyEvent.VK_DOWN:
-                a.y += 10;
+                if(a.y + 8 <= 800-30)
+                    a.y += 8;
                 break;
             case KeyEvent.VK_LEFT:
-                a.x -= 10;
+                if(a.x - 8 >= 0)
+                    a.x -= 8;
                 break;
             case KeyEvent.VK_RIGHT:
-                a.x += 10;
+                if(a.x + 8 <= 1200-30)
+                    a.x += 8;
                 break;
         }
     }
@@ -754,6 +758,29 @@ public class Galaga implements KeyListener {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
+                    try {
+                        JFrame j = new JFrame();
+                        JPanel p = new JPanel();
+                        j.setBounds(100, 100, 500, 600);
+                        p.setBounds(j.getBounds());
+                        j.add(p);
+                        j.setVisible(true);
+                        Graphics g = p.getGraphics();
+                                            
+                        URL url = this.getClass().getResource("large.gif");
+                        ImageIcon icon = new ImageIcon(url);
+                        Thread t = new Thread() {
+                            public void run() {
+                                while(true) {
+                                    g.drawImage(icon.getImage(), 0, 0, 500, 500, null);
+                                }
+                            }
+                        };
+                        t.start();
+
+                        Thread.sleep(13020);
+                        j.dispose();
+                    } catch(Exception e) {}
                     Galaga galaga = new Galaga();
                 }
             });
