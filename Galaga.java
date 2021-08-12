@@ -522,7 +522,7 @@ public class Galaga implements KeyListener {
                 }
             }
         };
-        //t1.start();
+        t1.start();
         
         stars.init();
         initEnemies();
