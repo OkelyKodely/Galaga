@@ -762,10 +762,6 @@ public class Galaga implements KeyListener {
         g = p.getGraphics();
 
         Graphics g2 = bottomSidePanel.getGraphics();
-        
-        try {
-            Thread.sleep(1130);
-        } catch(Exception e) {}
 
         gf.addFunction(1, "sleepOrPause", new Runnable() {
             @Override
@@ -975,16 +971,139 @@ public class Galaga implements KeyListener {
             enemy.draw();
         }
     }
-    
+    Graphics g2;
     private void play() {
         //where u at?
         a.x = 500;
         a.y = 700;
 
+        g2 = bottomSidePanel.getGraphics();
+        
         Thread main = new Thread() {
             public void run() {
                 while(true) {
-                    gf.startLoop();
+                    //gf.startLoop();
+
+                try {
+                    Thread.sleep(130);
+                } catch(Exception e) {}
+                try {
+                    iii = ImageIO.read(getClass().getResource("bot1.png"));
+                } catch(Exception e) {}
+                try {
+                    g2.drawImage(iii, 0, 0, null);
+                } catch(Exception e) {}
+
+                g.setColor(Color.BLACK);
+                g.fillRect(0, 0, 1200, 800);
+                stars.draw();
+
+                activateEnemies();
+                drawEnemies();
+        
+                a.draw();
+                lasers.moveLasersAlong(true);
+
+                for(int i=0; i<enemies.size(); i++) {
+                    try {
+                        for(int j=0; j<enemies.get(j).bombs.bombs.size(); j++) {
+                            try {
+                                enemies.get(j).bombs.moveAlongBombs();
+                                enemies.get(j).bombs.drawAll();
+                            } catch(Exception e) {}
+                        }
+                    } catch(Exception e) {}
+                    Random random = new Random();
+                    int randomValue = random.nextInt(480);
+                    if(randomValue == 0) {
+                        enemies.get(i).bombs.throwBomb(enemies.get(i).x, enemies.get(i).y);
+                        move_stars = true;
+                    }
+                    enemies.get(i).lasers1.moveLasersAlong(false);
+                    for(int j=0; j<enemies.get(i).lasers1.lasers.size(); j++) {
+                        if(enemies.get(i).lasers1.lasers.get(j).x >= a.x + 4 && enemies.get(i).lasers1.lasers.get(j).x <= a.x + 34 &&
+                                enemies.get(i).lasers1.lasers.get(j).y >= a.y - 20 && enemies.get(i).lasers1.lasers.get(j).y <= a.y + 39) {
+                            a.lives--;
+                        }
+                    }
+                    if(!enemies.get(i).isAlive()) {
+                        enemies.remove(enemies.get(i));
+                        points += 100;
+                    }
+                }
+                if(initCount >= 0 && initCount <= 6 && enemies.size() <= 2) {
+                    if(!rocks.moveDownAlong()) {
+                        initEnemies();
+                        initEnemies();
+                    }
+                }
+                else if(initCount >= 3 && initCount < 5) {
+                    boss1.isDowned();
+                    if(enemies.size() <= 6) {
+                        enemies.clear();
+                        initEnemies();
+                        initEnemies();
+                    } else {
+                        Random v = new Random();
+                        int randomX = v.nextInt(10) - v.nextInt(10);
+                        boss1.x = 400+randomX;
+                        boss1.y = 200;
+                        boss1.draw();
+                    }
+                }
+                else if(initCount >= 6 && initCount < 8) {
+                    boss2.isDowned();
+                    if(enemies.size() <= 6 && !boss2.isAlive()) {
+                        enemies.clear();
+                        initEnemies();
+                        initEnemies();
+                        initEnemies();
+                    } else {
+                        Random v = new Random();
+                        int randomX = v.nextInt(10) - v.nextInt(10);
+                        boss2.x = 400+randomX;
+                        boss2.y = 200;
+                        boss2.draw();
+                    }
+                }
+                else if(initCount >= 9 && initCount < 11) {
+                    boss3.isDowned();
+                    if(enemies.size() <= 6 && !boss3.isAlive()) {
+                        enemies.clear();
+                        initEnemies();
+                        initEnemies();
+                        initEnemies();
+                    } else {
+                        Random v = new Random();
+                        int randomX = v.nextInt(10) - v.nextInt(10);
+                        boss3.x = 400+randomX;
+                        boss3.y = 200;
+                        boss3.draw();
+                    }
+                }else if(initCount >= 12 && initCount < 14) {
+                    boss4.isDowned();
+                    if(enemies.size() <= 6 && !boss4.isAlive()) {
+                        enemies.clear();
+                        initEnemies();
+                        initEnemies();
+                    } else {
+                        Random v = new Random();
+                        int randomX = v.nextInt(10) - v.nextInt(10);
+                        boss4.x = 400+randomX;
+                        boss4.y = 200;
+                        boss4.draw();
+                    }
+                }
+
+                g.setColor(Color.lightGray);
+                g.setFont(new Font("Arial", Font.ITALIC, 20));
+                g.drawString("points = " + points, 100, 100);
+                g.setColor( new Color (100, 70, 230));
+                g.setFont(new Font("Arial", Font.PLAIN, 20));
+                g.drawString("arrowkeys to move & SPACEBAR to shoot", 700, 100);
+                j.setTitle("lives: " + a.lives);
+                if(a.lives == 0)
+                    System.exit(0);
                 }
             }
         };
