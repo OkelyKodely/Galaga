@@ -53,15 +53,15 @@ public class Galaga implements KeyListener {
     
     class Rocks {
         ArrayList<Rock> rs = new ArrayList<>();
-        long countDown = 1000;
+        long countDown = 200;
         int cnt = 0;
-        final static int INIT_SIZE = 20;
+        final static int INIT_SIZE = 95;
         Rocks() {
             for(int i=0; i<INIT_SIZE; i++) {
                 Rock rock = new Rock();
                 Random r = new Random();
-                rock.width = r.nextInt(36);
-                rock.height = r.nextInt(50);
+                rock.width = r.nextInt(36) + r.nextInt(36);
+                rock.height = r.nextInt(36) + r.nextInt(50);
                 rock.x = r.nextInt(1200);
                 rock.y = -r.nextInt(40);
                 rs.add(rock);
@@ -71,39 +71,39 @@ public class Galaga implements KeyListener {
             if(countDown == 0) {
                 return false;
             }
-            if(cnt == 14) {
+            if(cnt == 2) {
                 {Rock rock = new Rock();
                 Random r = new Random();
-                rock.width = r.nextInt(36);
-                rock.height = r.nextInt(50);
+                rock.width = r.nextInt(36) + r.nextInt(36);
+                rock.height = r.nextInt(36) + r.nextInt(50);
                 rock.x = r.nextInt(1200);
                 rock.y = -r.nextInt(40);
                 rs.add(rock);}
                 {Rock rock = new Rock();
                 Random r = new Random();
-                rock.width = r.nextInt(36);
-                rock.height = r.nextInt(50);
+                rock.width = r.nextInt(36) + r.nextInt(36);
+                rock.height = r.nextInt(36) + r.nextInt(50);
                 rock.x = r.nextInt(1200);
                 rock.y = -r.nextInt(40);
                 rs.add(rock);}
                 {Rock rock = new Rock();
                 Random r = new Random();
-                rock.width = r.nextInt(36);
-                rock.height = r.nextInt(50);
+                rock.width = r.nextInt(36) + r.nextInt(36);
+                rock.height = r.nextInt(36) + r.nextInt(50);
                 rock.x = r.nextInt(1200);
                 rock.y = -r.nextInt(40);
                 rs.add(rock);}
                 {Rock rock = new Rock();
                 Random r = new Random();
-                rock.width = r.nextInt(36);
-                rock.height = r.nextInt(50);
+                rock.width = r.nextInt(36) + r.nextInt(36);
+                rock.height = r.nextInt(36) + r.nextInt(50);
                 rock.x = r.nextInt(1200);
                 rock.y = -r.nextInt(40);
                 rs.add(rock);}
                 {Rock rock = new Rock();
                 Random r = new Random();
-                rock.width = r.nextInt(36);
-                rock.height = r.nextInt(50);
+                rock.width = r.nextInt(36) + r.nextInt(36);
+                rock.height = r.nextInt(36) + r.nextInt(50);
                 rock.x = r.nextInt(1200);
                 rock.y = -r.nextInt(40);
                 rs.add(rock);}
@@ -112,9 +112,34 @@ public class Galaga implements KeyListener {
             cnt++;
             countDown--;
             for(int i=0; i<rs.size(); i++) {
-                rs.get(i).y += 8;
+                Random r = new Random();
+                if(!rs.get(i).brokedOne) {
+                    
+                    rs.get(i).y += r.nextInt(24) + 8;
+                } else {
+                    rs.get(i).x += -10 - r.nextInt(74);
+                    rs.get(i).y += 140 + r.nextInt(64);
+                }
                 if(rs.get(i).isCrashed()) {
                     rs.remove(rs.get(i));
+                } else if(rs.get(i).isShotCrashed()) {
+                    int x1 = rs.get(i).x;
+                    int y1 = rs.get(i).y;
+                    rs.remove(rs.get(i));
+                    {Rock rock = new Rock();
+                    rock.width = r.nextInt(36) + r.nextInt(36);
+                    rock.height = r.nextInt(36) + r.nextInt(50);
+                    rock.x = x1 - 40;
+                    rock.y = y1;
+                    rock.brokedOne = true;
+                    rs.add(rock);}
+                    {Rock rock = new Rock();
+                    rock.width = r.nextInt(36) + r.nextInt(36);
+                    rock.height = r.nextInt(36) + r.nextInt(50);
+                    rock.x = x1 + 40;
+                    rock.y = y1;
+                    rock.brokedOne = true;
+                    rs.add(rock);}
                 }
             }
             this.drawAll();
@@ -122,8 +147,14 @@ public class Galaga implements KeyListener {
         }
         private void drawAll() {
             for(int i=0; i<rs.size(); i++) {
-                g.setColor(new Color(100, 130, 80));
+                Random rrrr = new Random();
+                int rrr = 40+rrrr.nextInt(140);
+                int r0 = rrrr.nextInt(80);
+                g.setColor(new Color(210, rrr, r0));
                 g.fillOval(rs.get(i).x, rs.get(i).y, rs.get(i).width, rs.get(i).height);
+                g.setColor(Color.lightGray);
+                g.drawOval(rs.get(i).x+5, rs.get(i).y+5, 6, 6);
+                g.drawOval(rs.get(i).x+15, rs.get(i).y+15, 4, 4);
             }
         }
     }
@@ -132,12 +163,27 @@ public class Galaga implements KeyListener {
         int width = 0;
         int height = 0;
         int x, y;
+        boolean brokedOne = false;
         public boolean isCrashed() {
-            if(a.x >= x && a.x <= x + width &&
-                    a.y >= y && a.y <= y + height) {
-                a.lives--;
-                return true;
+            if(!brokedOne) {
+                if(a.x >= x && a.x <= x + width &&
+                        a.y >= y && a.y <= y + height) {
+                    a.lives--;
+                    return true;
+                }
             }
+            return false;
+        }
+        public boolean isShotCrashed() {
+            try {
+                for(int i=0; i<lasers.lasers.size(); i++) {
+                    if(lasers.lasers.get(i).x >= x && lasers.lasers.get(i).x <= x + width &&
+                            lasers.lasers.get(i).y >= y && lasers.lasers.get(i).y <= y + height) {
+                        points += 33;
+                        return true;
+                    }
+                }
+            } catch(Exception e) {}
             return false;
         }
     }
