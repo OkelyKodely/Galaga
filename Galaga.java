@@ -919,13 +919,19 @@ public class Galaga implements KeyListener {
                         boss4.x = 600+randomX1;
                         boss4.y = 450;
                         boss4.draw();
-                        icount++;
+                        if(icount == -1)
+                            icount = 2;
+                        else if(icount != 2)
+                            icount = 1;
                     }
                 } else if(initCount >= 10) {
-                    if(icount == 1)
+                    if(icount == 1) {
                         initCount = 0;
-                    if(initCount != 0)
+                        icount = -1;
+                    }
+                    if(initCount != 0) {
                         playerOneWon();
+                    }
                 }
             }
         });
@@ -997,7 +1003,7 @@ public class Galaga implements KeyListener {
     }
     
     public void playerOneWon() {
-        g.setFont(new Font("SANS SERIF", Font.BOLD, 57));
+        g.setFont(new Font("SERIF", Font.BOLD, 41));
         g.setColor(Color.YELLOW);
         g.drawString("CONGRATULATIONS, PLAYER ONE, YOU WON", 100, 300);
         Thread t = new Thread() {
