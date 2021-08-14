@@ -23,6 +23,8 @@ import javax.swing.SwingUtilities;
 //github.com/okelykodely
 public class Galaga implements KeyListener {
     
+    int icount = 0;
+    
     GameFunctor gf = new GameFunctor();
     JFrame j = new JFrame();
     JPanel p = new JPanel();
@@ -917,9 +919,13 @@ public class Galaga implements KeyListener {
                         boss4.x = 600+randomX1;
                         boss4.y = 450;
                         boss4.draw();
+                        icount++;
                     }
                 } else if(initCount >= 10) {
-                    playerOneWon();
+                    if(icount == 1)
+                        initCount = 0;
+                    if(initCount != 0)
+                        playerOneWon();
                 }
             }
         });
