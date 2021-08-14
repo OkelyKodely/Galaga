@@ -14,7 +14,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
 import javax.imageio.ImageIO;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -659,12 +658,27 @@ public class Galaga implements KeyListener {
             vv = 7;
     }
     
+    private void initEnemies2() {
+        
+        initCount++;
+        initCount++;
+        initCount++;
+        
+        String plan = "D";
+        int v = 80;
+        for(int i=0; i<13; i++) {
+            Enemy enemy = new Enemy(10, vv*10, plan);
+            enemy.x += v*i;
+            enemies.add(enemy);
+        }
+    }
+
     int totalBombs = 0;
     
     int initCount = 0;
     
     Image iii = null;
-    
+    int screen = 1;
     public Galaga() {
         
         j.setLayout(null);
@@ -785,7 +799,19 @@ public class Galaga implements KeyListener {
         gf.addFunction(2, "cleerScreen", new Runnable() {
             @Override
             public void run() {
-                g.setColor(Color.BLACK);
+                if(screen >= 1 && screen < 22) {
+                    g.setColor(Color.GRAY);
+                    screen++;
+                }
+                else if(screen >= 22 && screen < 43) {
+                    g.setColor(new Color(30, 30, 140));
+                    screen++;
+                }
+                else if(screen >= 43 && screen < 65) {
+                    g.setColor(new Color(100,0,168));
+                    screen++;
+                } else if(screen == 65)
+                    screen = 1;
                 g.fillRect(0, 0, 1200, 800);
                 stars.draw();
             }
@@ -874,9 +900,9 @@ public class Galaga implements KeyListener {
                 }
                 else if(initCount >= 9 && initCount < 11) {
                     boss3.isDowned();
-                    if(enemies.size() <= 6 && !boss3.isAlive()) {
+                    boss4.isDowned();
+                    if(enemies.size() <= 6) {
                         enemies.clear();
-                        initEnemies();
                         initEnemies();
                         initEnemies();
                     } else {
@@ -885,20 +911,15 @@ public class Galaga implements KeyListener {
                         boss3.x = 400+randomX;
                         boss3.y = 200;
                         boss3.draw();
-                    }
-                }else if(initCount >= 12 && initCount < 14) {
-                    boss4.isDowned();
-                    if(enemies.size() <= 6 && !boss4.isAlive()) {
-                        enemies.clear();
-                        initEnemies();
-                        initEnemies();
-                    } else {
-                        Random v = new Random();
-                        int randomX = v.nextInt(10) - v.nextInt(10);
-                        boss4.x = 400+randomX;
-                        boss4.y = 200;
+
+                        Random v1 = new Random();
+                        int randomX1 = v1.nextInt(10) - v1.nextInt(10);
+                        boss4.x = 600+randomX1;
+                        boss4.y = 450;
                         boss4.draw();
                     }
+                } else if(initCount >= 10) {
+                    playerOneWon();
                 }
             }
         });
@@ -967,6 +988,21 @@ public class Galaga implements KeyListener {
                 }
             }
         }
+    }
+    
+    public void playerOneWon() {
+        g.setFont(new Font("SANS SERIF", Font.BOLD, 57));
+        g.setColor(Color.YELLOW);
+        g.drawString("CONGRATULATIONS, PLAYER ONE, YOU WON", 100, 300);
+        Thread t = new Thread() {
+            public void run() {
+                try {
+                    Thread.sleep(10000);
+                    System.exit(0);     
+                } catch(Exception e) {}
+            }
+        };
+        t.start();
     }
     
     private void drawEnemies() {
