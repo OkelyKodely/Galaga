@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 //author @Danicel Cho
+
 //github.com/okelykodely
 public class Galaga implements KeyListener {
     
@@ -52,9 +53,106 @@ public class Galaga implements KeyListener {
     
     Rocks rocks = new Rocks();
     
+    Capsules capsules = new Capsules();
+    
+    class Capsules {
+        ArrayList<Capsule> caps = new ArrayList<>();
+        public void addSpecifiedCapsuleAtLocation(int x, int y, Color col) {
+            Capsule c = new Capsule(col);
+            c.x = x;
+            c.y = y;
+            caps.add(c);
+        }
+        public void addCapsuleAtLocation(int x, int y) {
+            Random r = new Random();
+            int v = r.nextInt(3);
+            Color col = null;
+            if(v == 0)
+                col = Color.RED;
+            else if(v == 1)
+                col = Color.CYAN;
+            else if(v == 2)
+                col = Color.GREEN;
+            Capsule c = new Capsule(col);
+            c.x = x;
+            c.y = y;
+            caps.add(c);
+        }
+        public void addRandomCapsule() {
+            Random r = new Random();
+            int v = r.nextInt(3);
+            Color col = null;
+            if(v == 0)
+                col = Color.RED;
+            else if(v == 1)
+                col = Color.CYAN;
+            else if(v == 2)
+                col = Color.GREEN;
+            Capsule c = new Capsule(col);
+            c.x = r.nextInt(1000) + 40;
+            c.y = r.nextInt(400) + 140;
+            caps.add(c);
+        }
+        public void drawAll() {
+            for(int i=0; i<caps.size(); i++) {
+                caps.get(i).draw();
+            }
+        }
+        public void checkIfAnyEaten() {
+            for(int i=0; i<caps.size(); i++) {
+                if(caps.get(i).isCosumned()) {
+                    caps.remove(caps.get(i));
+                }
+            }
+        }
+    }
+    
+    class Capsule {
+        int x, y;
+        int width;
+        int height;
+        Color color;
+        String kind;
+        Capsule(Color color) {
+            width = 30;
+            height = 34;
+            this.color = color;
+            if(this.color == Color.CYAN)
+                kind = "triple spread";
+            else if(this.color == Color.RED)
+                kind = "regular";
+            else
+                kind = "all spread";
+        }
+        public void draw() {
+            g.setColor(this.color);
+            g.drawOval(x, y, width, height);
+            g.setColor(Color. white /*E*/  );
+            if(this.color == Color.CYAN)
+                g.drawString("C", x, y);
+            else if(this.color == Color.RED)
+                g.drawString("R", x, y);
+            else
+                g.drawString("G", x, y);
+        }
+        public String kind() {
+            return kind;
+        }
+        public boolean isCosumned() {
+            if(a.x >= x && a.x <= x + width &&
+                    a.y >= y && a.y <= y + height) {
+                a.capsule = this;
+                x = -100;
+                y = -100;
+                return true;
+            }
+            return false;
+        }
+    }
+    
     class Rocks {
         ArrayList<Rock> rs = new ArrayList<>();
-        long countDown = 200;
+        long countDown = 200 ;
         int cnt = 0;
         final static int INIT_SIZE = 95;
         Rocks() {
@@ -181,6 +279,11 @@ public class Galaga implements KeyListener {
                     if(lasers.lasers.get(i).x >= x && lasers.lasers.get(i).x <= x + width &&
                             lasers.lasers.get(i).y >= y && lasers.lasers.get(i).y <= y + height) {
                         points += 33;
+                        Random r = new Random();
+                        int w = r.nextInt(12);
+                        if(w == 0) {
+                            capsules.addCapsuleAtLocation(x, y);
+                        }
                         return true;
                     }
                 }
@@ -270,7 +373,7 @@ public class Galaga implements KeyListener {
     public void keyPressed(KeyEvent ke) {
         switch(ke.getKeyCode()) {
             case KeyEvent.VK_SPACE:
-                lasers.addLaser(a.x, a.y);
+                lasers.addLaser(a.x, a.y, a.capsule);
                 break;
             case KeyEvent.VK_UP:
                 if(a.y - 8 >= 0)
@@ -296,26 +399,74 @@ public class Galaga implements KeyListener {
     }
 
     class Lasers {
-        ArrayList<Point> lasers = new ArrayList<>();
-        public void addLaser(int x, int y) {
-            Point pt = new Point();
-            pt.x = x;
-            pt.y = y;
-            lasers.add(pt);
+        ArrayList<Point2> lasers = new ArrayList<>();
+        public void addLaser(int x, int y, Capsule userCapsule) {
+            if(userCapsule == null) {
+                userCapsule = new Capsule(Color.RED);
+                userCapsule.kind = "regular";
+            }
+            if(userCapsule.kind.equals("regular")) {
+                Point2 pt = new Point2();
+                pt.x = x;
+                pt.y = y;
+                pt.kind = userCapsule.kind;
+                pt.isRound =  false;
+                lasers.add(pt);
+            } else if(userCapsule.kind.equals("triple spread")) {
+                for(int i=0; i<3; i++) {
+                    Point2 pt = new Point2();
+                    pt.x = x;
+                    pt.y = y;
+                    pt.kind = userCapsule.kind;
+                    pt.isRound =  false;
+                    pt.place = i+1;
+                    lasers.add(pt);
+                }
+            } else if(userCapsule.kind.equals("all spread")) {
+                for(int i=0; i<13; i++) {
+                    Point2 pt = new Point2();
+                    pt.x = x;
+                    pt.y = y;
+                    pt.kind = userCapsule.kind;
+                    pt.isRound =  false;
+                    pt.place = i+1;
+                    lasers.add(pt);
+                }
+            }
         }
         public void moveLasersAlong(boolean UP) {
             for(int i=0; i<lasers.size(); i++) {
                 g.setColor(Color.RED);
                 if(UP)
                     g.setColor(Color.BLUE);
-                Point pt = null;
+                Point2 pt = null;
                 try {
-                    pt = new Point();
+                    pt = new Point2();
                     pt.x = lasers.get(i).x;
                     pt.y = lasers.get(i).y;
-                    g.fillRect(pt.x, pt.y, 5, 30 )  ;
-                    if(UP)
+                    pt.isRound = lasers.get(i).isRound;
+                    pt.kind = lasers.get(i).kind;
+                    pt.place = lasers.get(i).place;
+                    if(pt.kind.equals("regular")) {
+                        g.fillRect(pt.x, pt.y, 5, 30 )  ;
+                    } else {
+                        g.fillOval(pt.x, pt.y, 14, 18)  ;
+                    }
+                    if(UP) {
                         lasers.get(i).y -= 30;
+                        if(!pt.kind.contains("regular")) {
+                            if(pt.place < 7) {
+                                pt.x = pt.x - (7-pt.place);
+                            }
+                            else if(pt.place == 7) {
+                                pt.x = pt.x;
+                            }
+                            else if(pt.place > 7) {
+                                pt.x = pt.x + pt.place;
+                            }
+                        }
+                        lasers.get(i).x = pt.x;
+                    }
                     else
                         lasers.get(i).y += 10;
                 } catch(Exception e) {
@@ -328,11 +479,19 @@ public class Galaga implements KeyListener {
     class Point {
         int x, y;
     }
-    
+
+    class Point2 {
+        int x, y;
+        boolean isRound  = false;
+        String kind = "regular";
+        int place = 1;
+    }
+   
     class PlayerOne {
         int lives = 100;
         int x, y;
         Image image = null;
+        Capsule capsule = null;
         PlayerOne() {
             try {
                 image = ImageIO.read(getClass().getResource("playerOne.png"));
@@ -369,7 +528,7 @@ public class Galaga implements KeyListener {
                 Random r = new Random();
                 int v = r.nextInt(100);
                 if(v == 0) {
-                    this.lasers1.addLaser(x, y+50);
+                    this.lasers1.addLaser(x, y+50, null); //!userCapsule
                 }
             } catch(Exception e) {}
         }
@@ -377,6 +536,11 @@ public class Galaga implements KeyListener {
             for(int i=0; i<lasers.lasers.size(); i++) {
                 if(lasers.lasers.get(i).x >= x && lasers.lasers.get(i).x <= x + 30 &&
                         lasers.lasers.get(i).y >= y && lasers.lasers.get(i).y <= y + 30) {
+                    Random r = new Random();
+                    int w = r.nextInt(12);
+                    if(w == 0) {
+                        capsules.addCapsuleAtLocation(x, y);
+                    }
                     return false;
                 }
             }
@@ -681,6 +845,7 @@ public class Galaga implements KeyListener {
     
     Image iii = null;
     int screen = 1;
+    
     public Galaga() {
         
         j.setLayout(null);
@@ -697,8 +862,7 @@ public class Galaga implements KeyListener {
         j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         j.setVisible(true);
-        //j.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-        //j.setVisible(true);        
+        j.setExtendedState(JFrame.MAXIMIZED_BOTH); 
         j.addKeyListener(this);
         
         
@@ -776,8 +940,6 @@ public class Galaga implements KeyListener {
         t1.start();
         
         stars.init();
-//        initEnemies();
-//        initEnemies();
         
         g = p.getGraphics();
 
@@ -816,6 +978,8 @@ public class Galaga implements KeyListener {
                     screen = 1;
                 g.fillRect(0, 0, 1200, 800);
                 stars.draw();
+                capsules.checkIfAnyEaten();
+                capsules.drawAll();
             }
         });
         
@@ -1028,6 +1192,11 @@ public class Galaga implements KeyListener {
         //where u at?
         a.x = 500;
         a.y = 700;
+        
+        Capsule cred = new Capsule(Color.RED);
+        cred.x = -100;
+        cred.y = -100;
+        a.capsule = cred;
 
         g2 = bottomSidePanel.getGraphics();
         
