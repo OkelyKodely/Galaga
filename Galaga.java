@@ -1,11 +1,16 @@
 package galaga;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -15,6 +20,7 @@ import java.util.Set;
 import java.util.Vector;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -25,7 +31,8 @@ import javax.swing.SwingUtilities;
 
 public class Galaga implements KeyListener {
     
-    int icount = 0;
+Clip clip;AudioInputStream audioInputStream;
+        int icount = 0;
     GameFunctor gf = new GameFunctor();
     JFrame j = new JFrame();
     JPanel p = new JPanel();
@@ -54,6 +61,10 @@ public class Galaga implements KeyListener {
     Rocks rocks = new Rocks();
     
     Capsules capsules = new Capsules();
+    
+    JButton oneBtn = new JButton("1");
+    JButton twoBtn = new JButton("2");
+    JButton threeBtn = new JButton("3");
     
     class Capsules {
         ArrayList<Capsule> caps = new ArrayList<>();
@@ -285,6 +296,18 @@ public class Galaga implements KeyListener {
                 for(int i=0; i<lasers.lasers.size(); i++) {
                     if(lasers.lasers.get(i).x >= x && lasers.lasers.get(i).x <= x + width &&
                             lasers.lasers.get(i).y >= y && lasers.lasers.get(i).y <= y + height) {
+                        try{
+                            AudioInputStream audioInputStream =
+                                AudioSystem.getAudioInputStream(
+                                    this.getClass().getResource("explosion.wav"));
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audioInputStream);
+                            clip.start();
+                        }
+                        catch(Exception ex)
+                        {
+                            ex.printStackTrace();
+                        }
                         points += 33;
                         Random r = new Random();
                         int w = r.nextInt(12);
@@ -380,6 +403,18 @@ public class Galaga implements KeyListener {
     public void keyPressed(KeyEvent ke) {
         switch(ke.getKeyCode()) {
             case KeyEvent.VK_SPACE:
+                try{
+                    AudioInputStream audioInputStream =
+                        AudioSystem.getAudioInputStream(
+                            this.getClass().getResource("lasershot.wav"));
+                    Clip clip = AudioSystem.getClip();
+                    clip.open(audioInputStream);
+                    clip.start();
+                }
+                catch(Exception ex)
+                {
+                    ex.printStackTrace();
+                }
                 lasers.addLaser(a.x, a.y, a.capsule);
                 break;
             case KeyEvent.VK_UP:
@@ -543,6 +578,18 @@ public class Galaga implements KeyListener {
             for(int i=0; i<lasers.lasers.size(); i++) {
                 if(lasers.lasers.get(i).x >= x && lasers.lasers.get(i).x <= x + 30 &&
                         lasers.lasers.get(i).y >= y && lasers.lasers.get(i).y <= y + 30) {
+                    try{
+                        AudioInputStream audioInputStream =
+                            AudioSystem.getAudioInputStream(
+                                this.getClass().getResource("explosion.wav"));
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioInputStream);
+                        clip.start();
+                    }
+                    catch(Exception ex)
+                    {
+                        ex.printStackTrace();
+                    }
                     Random r = new Random();
                     int w = r.nextInt(12);
                     if(w == 0) {
@@ -943,6 +990,121 @@ public class Galaga implements KeyListener {
             }
         };
         t1.start();
+
+        bottomSidePanel.setLayout(null);
+        oneBtn.setBounds(400, 14, 200, 40);
+        twoBtn.setBounds(650, 14, 200, 40);
+        threeBtn.setBounds(900, 14, 200, 40);
+        bottomSidePanel.add(oneBtn);
+        j.requestFocus();
+        oneBtn.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent me) {
+                try{
+                    clip.stop();
+                    audioInputStream =
+                        AudioSystem.getAudioInputStream(
+                            this.getClass().getResource("galagath.wav"));
+                    clip = AudioSystem.getClip();
+                    clip.open(audioInputStream);
+                    clip.loop(Clip.LOOP_CONTINUOUSLY);
+                    j.requestFocus();
+                }
+                catch(Exception ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent me) {
+            }
+        });
+        bottomSidePanel.add(twoBtn);
+        twoBtn.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent me) {
+            }
+
+            @Override
+            public void mousePressed(MouseEvent me) {
+                try{
+                    clip.stop();
+                    audioInputStream =
+                        AudioSystem.getAudioInputStream(
+                            this.getClass().getResource("2..wav"));
+                    clip = AudioSystem.getClip();
+                    clip.open(audioInputStream);
+                    clip.loop(Clip.LOOP_CONTINUOUSLY);
+                    j.requestFocus();
+                }
+                catch(Exception ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent me) {
+            }
+        });
+        bottomSidePanel.add(threeBtn);
+        threeBtn.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent me) {
+                try{
+                    clip.stop();
+                    audioInputStream =
+                        AudioSystem.getAudioInputStream(
+                            this.getClass().getResource("thre.wav"));
+                    clip = AudioSystem.getClip();
+                    clip.open(audioInputStream);
+                    clip.loop(Clip.LOOP_CONTINUOUSLY);
+                    j.requestFocus();
+                }
+                catch(Exception ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent me) {
+            }
+        });
+        
         
         stars.init();
         
@@ -957,10 +1119,10 @@ public class Galaga implements KeyListener {
                     Thread.sleep(130);
                 } catch(Exception e) {}
                 try {
-                    iii = ImageIO.read(getClass().getResource("bot1.png"));
+                    iii = ImageIO.read(getClass().getResource("galaga.png"));
                 } catch(Exception e) {}
                 try {
-                    g2.drawImage(iii, 0, 0, null);
+                    g2.drawImage(iii, 0, 0, 400, 70, null);
                 } catch(Exception e) {}
             }
         });
@@ -1196,6 +1358,19 @@ public class Galaga implements KeyListener {
     Graphics g2;
 
     private void play() {
+        try{
+            audioInputStream =
+                AudioSystem.getAudioInputStream(
+                    this.getClass().getResource("galagath.wav"));
+            clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
+
         Capsule cred = new Capsule(Color.RED);
         cred.x = -100;
         cred.y = -100;
@@ -1240,21 +1415,25 @@ public class Galaga implements KeyListener {
                                     try {
                                         Thread.sleep(300);
                                     } catch(Exception e) {}
+                                    g.setColor(Color.white);
+                                    g.fillRect(0, 0, 500, 500);
                                 }
                             }
                         };
                         t.start();
 
                         Thread.sleep(13020);
+                        
                         j.dispose();
                     } catch(Exception e) {
-                        
+                        e.printStackTrace();
                     }
                     
                     Galaga galaga = new Galaga();
                 }
             });
-        } catch(Exception e) {}
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
-
 }
