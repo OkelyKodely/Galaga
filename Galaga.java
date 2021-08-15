@@ -19,13 +19,13 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-//author @Danicel Cho
+// author -Daniel Cho
 
-//github.com/okelykodely
+// www.github.com/okelykodely
+
 public class Galaga implements KeyListener {
     
     int icount = 0;
-    
     GameFunctor gf = new GameFunctor();
     JFrame j = new JFrame();
     JPanel p = new JPanel();
@@ -95,7 +95,13 @@ public class Galaga implements KeyListener {
         }
         public void drawAll() {
             for(int i=0; i<caps.size(); i++) {
-                caps.get(i).draw();
+                if(caps.get(i).lives > 0) {
+                    caps.get(i).draw();
+                }
+                caps.get(i).lives--;
+                if(caps.get(i).lives == 0) {
+                    caps.remove(caps.get(i));
+                }
             }
         }
         public void checkIfAnyEaten() {
@@ -113,6 +119,7 @@ public class Galaga implements KeyListener {
         int height;
         Color color;
         String kind;
+        int lives = 200;
         Capsule(Color color) {
             width = 30;
             height = 34;
@@ -782,7 +789,6 @@ public class Galaga implements KeyListener {
             } else {
                 if(amountMoveStars == -15) {
                     for(int i=0; i<stars.size(); i++) {
-                        //amountMoveStars = 15;
                         stars.get(i).x += 15;
                         g.drawOval(stars.get(i).x, stars.get(i).y, 1, 1);
                     }
@@ -847,7 +853,6 @@ public class Galaga implements KeyListener {
     int screen = 1;
     
     public Galaga() {
-        
         j.setLayout(null);
         j.setBounds(0, 0, game_width, game_height);
         p.setBounds(0, 0, frame_width, frame_height);
@@ -1187,15 +1192,16 @@ public class Galaga implements KeyListener {
             enemy.draw();
         }
     }
+
     Graphics g2;
+
     private void play() {
-        //where u at?
-        a.x = 500;
-        a.y = 700;
-        
         Capsule cred = new Capsule(Color.RED);
         cred.x = -100;
         cred.y = -100;
+
+        a.x = 500;
+        a.y = 700;
         a.capsule = cred;
 
         g2 = bottomSidePanel.getGraphics();
@@ -1241,10 +1247,14 @@ public class Galaga implements KeyListener {
 
                         Thread.sleep(13020);
                         j.dispose();
-                    } catch(Exception e) {}
+                    } catch(Exception e) {
+                        
+                    }
+                    
                     Galaga galaga = new Galaga();
                 }
             });
         } catch(Exception e) {}
     }
+
 }
