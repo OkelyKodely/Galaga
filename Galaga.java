@@ -31,8 +31,9 @@ import javax.swing.SwingUtilities;
 
 public class Galaga implements KeyListener {
     
-Clip clip;AudioInputStream audioInputStream;
-        int icount = 0;
+    Clip clip;
+    AudioInputStream audioInputStream;
+    int icount = 0;
     GameFunctor gf = new GameFunctor();
     JFrame j = new JFrame();
     JPanel p = new JPanel();
@@ -65,6 +66,40 @@ Clip clip;AudioInputStream audioInputStream;
     JButton oneBtn = new JButton("1");
     JButton twoBtn = new JButton("2");
     JButton threeBtn = new JButton("3");
+    
+    class Rays {
+        Image image = null;
+        ArrayList<Ray> rs = new ArrayList<>();
+        Rays() {
+            try {
+                image = ImageIO.read(this.getClass().getResource("ray.png"));
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+        public void addRay(int x, int y) {
+            Ray r = new Ray();
+            r.x = x;
+            r.y = y;
+            rs.add(r);
+        }
+        public void moveRaysAlong() {
+            for(int i=0; i<rs.size(); i++) {
+                Ray r = null;
+                try {
+                    r = new Ray();
+                    r.x = rs.get(i).x;
+                    r.y = rs.get(i).y + 10;
+                    rs.get(i).y = r.y;
+                    g.drawImage(image, r.x, r.y, 140, 118, null);
+                } catch(Exception e) {}
+            }
+        }
+    }
+    
+    class Ray {
+        int x, y;
+    }
     
     class Capsules {
         ArrayList<Capsule> caps = new ArrayList<>();
@@ -351,6 +386,7 @@ Clip clip;AudioInputStream audioInputStream;
         int lives = 20;
         URL url = null;
         int level = 1;
+        Rays rs = new Rays();
         Boss(int level) {
             this.level = level;
             if(this.level == 1) {
@@ -392,6 +428,11 @@ Clip clip;AudioInputStream audioInputStream;
                 ImageIcon icon = new ImageIcon(url);
                 g.drawImage(icon.getImage(), x, y, null);
             } catch(Exception e) {e.printStackTrace();}
+            Random r = new Random();
+            int v = r.nextInt(60);
+            if(v == 0) {
+                this.rs.addRay(x, y+50);
+            }
         }
     }
     
@@ -1214,6 +1255,14 @@ Clip clip;AudioInputStream audioInputStream;
                         boss1.x = 400+randomX;
                         boss1.y = 200;
                         boss1.draw();
+                        boss1.rs.moveRaysAlong();
+                        for(int i=0; i<boss1.rs.rs.size(); i++) {
+                            if(a.x >= boss1.rs.rs.get(i).x && a.x <= boss1.rs.rs.get(i).x + 180 &&
+                                    a.y >= boss1.rs.rs.get(i).y && a.y <= boss1.rs.rs.get(i).y + 118) {
+                                a.lives -= 14;
+                                boss1.rs.rs.remove(boss1.rs.rs.get(i));
+                            }
+                        }
                     }
                 }
                 else if(initCount >= 6 && initCount < 8) {
@@ -1229,6 +1278,14 @@ Clip clip;AudioInputStream audioInputStream;
                         boss2.x = 400+randomX;
                         boss2.y = 200;
                         boss2.draw();
+                        boss2.rs.moveRaysAlong();
+                        for(int i=0; i<boss2.rs.rs.size(); i++) {
+                            if(a.x >= boss2.rs.rs.get(i).x && a.x <= boss2.rs.rs.get(i).x + 180 &&
+                                    a.y >= boss2.rs.rs.get(i).y && a.y <= boss2.rs.rs.get(i).y + 118) {
+                                a.lives -= 14;
+                                boss2.rs.rs.remove(boss2.rs.rs.get(i));
+                            }
+                        }
                     }
                 }
                 else if(initCount >= 9 && initCount < 11) {
@@ -1254,6 +1311,24 @@ Clip clip;AudioInputStream audioInputStream;
                             icount = 2;
                         else if(icount != 2)
                             icount = 1;
+
+                        boss3.rs.moveRaysAlong();
+                        for(int i=0; i<boss3.rs.rs.size(); i++) {
+                            if(a.x >= boss3.rs.rs.get(i).x && a.x <= boss3.rs.rs.get(i).x + 180 &&
+                                    a.y >= boss3.rs.rs.get(i).y && a.y <= boss3.rs.rs.get(i).y + 118) {
+                                a.lives -= 14;
+                                boss3.rs.rs.remove(boss3.rs.rs.get(i));
+                            }
+                        }
+
+                        boss4.rs.moveRaysAlong();
+                        for(int i=0; i<boss4.rs.rs.size(); i++) {
+                            if(a.x >= boss4.rs.rs.get(i).x && a.x <= boss4.rs.rs.get(i).x + 180 &&
+                                    a.y >= boss4.rs.rs.get(i).y && a.y <= boss4.rs.rs.get(i).y + 118) {
+                                a.lives -= 14;
+                                boss4.rs.rs.remove(boss4.rs.rs.get(i));
+                            }
+                        }
                     }
                 } else if(initCount >= 10) {
                     if(icount == 1) {
